@@ -11,3 +11,12 @@ header h1{
 .variable{
     color: royalblue;
 }
+.help-block{
+    color: darkred;
+}
+#information_boxes{
+    padding: 20px;
+}
+#botonera{
+    padding: 10px;
+}
