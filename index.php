@@ -45,6 +45,9 @@ if(isset($_POST['submit']) && ($_POST['submit'] == "Convertir")){
     <!--<script src="js/MyConversor.js"></script>
     <script src="libs/json2xml.js"></script>
     <script src="libs/xml2json.js"></script>-->
+    <!--icon-->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>Mi Conversor</title>
 </head>
 <header>
