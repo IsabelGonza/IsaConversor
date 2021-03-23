@@ -1,0 +1,13 @@
+header h1{
+    text-align: center;
+}
+
+#informacion_archivo{
+    background-color: aliceblue;
+}
+#informacion_convertido{
+    background-color: palevioletred;
+}
+.variable{
+    color: royalblue;
+}
