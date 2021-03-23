@@ -27,6 +27,17 @@ if (isset($_POST['submit']) && ($_POST['submit'] == "Convertir")) {
             if ($formato_base == "xml") {
                 $es_xml = true;
                 $archivo_convertido = convert_to_xml($archivo);
+
+                if ($archivo_convertido != "") {
+                    $fichero_convertido_con_exito = true;
+                    $mostrar_boton_descarga = true;
+                }
+            }
+            if ($formato_base == "json") {
+                $es_json = true;
+                $archivo_json = imprimir_fichero_json($archivo);
+                $archivo_convertido = convert_to_json($archivo_json);
+
                 if ($archivo_convertido != "") {
                     $fichero_convertido_con_exito = true;
                     $mostrar_boton_descarga = true;
@@ -40,7 +51,8 @@ if (isset($_POST['submit']) && ($_POST['submit'] == "Convertir")) {
 
 }
 if (isset($_POST['submit']) && ($_POST['submit'] == "Descargar")) {
-    download();
+    $formato_base = $_POST['archivo_convertido_ext'];
+    download($formato_base);
 }
 
 ?>
@@ -85,7 +97,6 @@ if (isset($_POST['submit']) && ($_POST['submit'] == "Descargar")) {
                                 echo '<input type="submit" name="submit"  value="Descargar" class="btn btn-info">';
                             } ?>
                         </div>
-                        <br/>
 
                         <?php if ($archivo != "") { ?>
                             <div class="row" id="information_boxes">
@@ -100,8 +111,9 @@ if (isset($_POST['submit']) && ($_POST['submit'] == "Descargar")) {
                                             echo "<h4>Contenido del archivo</h4>";
                                             if ($es_xml == true) {
                                                 imprimir_fichero_xml($archivo);
-                                            } elseif ($es_json == true) {
-                                                imprimir_fichero_json($archivo);
+                                            }
+                                            if ($es_json == true) {
+                                               echo imprimir_fichero_json($archivo);
                                             }
                                             echo "</div>";
                                         }
@@ -114,13 +126,15 @@ if (isset($_POST['submit']) && ($_POST['submit'] == "Descargar")) {
                                             echo "<div class='jumbotron' id='informacion_convertido'>";
                                             echo "<h4>Contenido del archivo a descargar</h4>";
                                             if ($es_xml == true) {
-                                                //imprimir_fichero_json($archivo_convertido);
                                                 echo $archivo_convertido;
-                                            } else {
-                                                imprime_bonito_array($archivo_convertido);
+                                            }
+                                            if($es_json == true){
+                                              /* echo $archivo_convertido;*/
+                                               imprime_bonito_array($archivo_convertido);
                                             }
                                             echo "</div>";
                                             print_hidden($archivo_convertido);
+                                            print_hidden_extension($formato_base);
 
                                         }
 

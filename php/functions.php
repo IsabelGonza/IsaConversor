@@ -51,8 +51,16 @@ function displayChildrenRecursive($xmlObj,$depth=0)
 }
 
 function imprimir_fichero_json($archivo){
-    $obj = json_decode($archivo, true);
-    return imprime_bonito_array($obj);
+   /* return json_encode($archivo);*/
+
+    if(isset($archivo['tmp_name'])){
+        $url = $archivo['tmp_name'];
+        $data = @file_get_contents("$url");
+        $items = json_decode($data, true);
+    }
+
+    return json_encode($items);
+
 }
 
 function descargar_archivo_convertido($converted_file){
@@ -65,17 +73,35 @@ function descargar_archivo_convertido($converted_file){
     readfile($converted_file);
 }
 
+function array2xml($data, $root = null){
+    $xml = new SimpleXMLElement($root ? '<' . $root . '/>' : '<root/>');
+    array_walk_recursive($data, function($value, $key)use($xml){
+        $xml->addChild($key, $value);
+    });
+    return $xml->asXML();
+}
+
 function download(){
 $content = $_POST['archivo_convertido_input'];
+
+$extension_base = $_POST['archivo_convertido_ext'];
+if($extension_base== "xml"){
+    $extension = ".json";
+}
+if($extension_base== "json"){
+    $extension = ".xml";
+    $content = array2xml(unserialize($_POST['archivo_convertido_input']));
+}
+
 $nombre_fichero = "file_converted";
-$extension = ".json";
+
 
 $direccion_file = ".".DIRECTORY_SEPARATOR."download";
 $fileroute = crear_carpeta(__DIR__,"download");
 $file_dir = "$direccion_file".DIRECTORY_SEPARATOR."$nombre_fichero$extension";
 //Creamos el archivo
 $file = crear_fichero("$nombre_fichero","$content","$extension","$file_dir");
-    if (file_exists($file_dir)) {
+if (file_exists($file_dir)) {
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="'.basename($file_dir).'"');
@@ -93,9 +119,7 @@ function convert_to_xml($archivo){
     if(is_file($archivo['tmp_name'])){
         $object = simplexml_load_file($archivo['tmp_name']);
     }
-    /*if(is_string($archivo)){
-        $object = simplexml_load_string($archivo);
-    }*/
+
     $json = json_encode($object);
     return $json;
 }
@@ -110,9 +134,20 @@ function convert_to_xml($archivo){
 }
 //Convierte un archivo .json a xml
 function convert_to_json($archivo){
+    var_dump($archivo);
+    $datas = json_decode($archivo, true);
     $xml = new SimpleXMLElement('<root/>');
-    array_walk_recursive($archivo, array ($xml, 'addChild'));
-    print $xml->asXML();
+    array_walk_recursive($datas, array ($xml, 'addChild'));
+    /*print $xml->asXML();*/
+
+    /*foreach ($datas as $product) {
+        echo '<pre>';
+        print_r($product);
+        echo '</pre>';
+    }*/
+    return $datas;
+   /* return $xml->asXML();*/
+
 }
 // function defination to convert array to xml
 function array_to_xml( $data, &$xml_data ) {
@@ -132,9 +167,22 @@ function array_to_xml( $data, &$xml_data ) {
 
 
 function print_hidden($archivo_convertido){
+    $data = "";
+    if($archivo_convertido != "" && (is_string($archivo_convertido) == true)){
+        $data = $archivo_convertido;
+    }
+    if(is_array($archivo_convertido) == true){
+        $data = serialize($archivo_convertido);
+    }
 
    echo  '<div id="campo_oculto">';
-    echo "<input type='hidden' name='archivo_convertido_input' value='$archivo_convertido'>";
+    echo "<input type='hidden' name='archivo_convertido_input' value='$data'>";
+    echo '</div>';
+}
+function print_hidden_extension($extension){
+
+    echo  '<div id="campo_oculto">';
+    echo "<input type='hidden' name='archivo_convertido_ext' value='$extension'>";
     echo '</div>';
 }
 
